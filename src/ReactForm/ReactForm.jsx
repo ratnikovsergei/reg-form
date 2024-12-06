@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useStore } from '../hooks/useStore';
 import styles from './ReactForm.module.css';
 import { PASSWORD_PATTERN, EMAIL_PATTERN } from '../patterns/patterns';
@@ -8,6 +8,8 @@ const ReactForm = () => {
   const { email, password, confirmedPassword } = getState();
   const [emailError, setEmailError] = useState(null);
   const [passwordError, setPasswordError] = useState(null);
+
+  const submitBtnRef = useRef(null);
 
   const onChange = ({ target }) => {
     updateState(target.name, target.value);
@@ -49,6 +51,18 @@ const ReactForm = () => {
     setPasswordError(error);
   };
 
+  useEffect(() => {
+    if (
+      !emailError &&
+      !passwordError &&
+      email &&
+      password &&
+      confirmedPassword === password
+    ) {
+      submitBtnRef.current.focus();
+    }
+  }, [emailError, passwordError, email, password, confirmedPassword]);
+
   return (
     <div className={styles.form}>
       <p>
@@ -84,6 +98,7 @@ const ReactForm = () => {
         <button
           type="submit"
           className={styles['submit-btn']}
+          ref={submitBtnRef}
           disabled={
             emailError ||
             passwordError ||

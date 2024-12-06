@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { useRef, useEffect } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import styles from './ReactHookForm.module.css';
 import { validationScheme } from '../scheme/scheme';
@@ -8,6 +9,7 @@ const ReactHookForm = () => {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm({
     defaultValues: {
       email: '',
@@ -21,9 +23,25 @@ const ReactHookForm = () => {
     console.log(data);
   };
 
+  const { email, password, confirmedPassword } = watch();
+
   const emailError = errors.email?.message;
   const passwordError = errors.password?.message;
   const confirmedPasswordError = errors.confirmedPassword?.message;
+
+  const submitBtnRef = useRef(null);
+
+  useEffect(() => {
+    if (
+      !emailError &&
+      !passwordError &&
+      email &&
+      password &&
+      confirmedPassword === password
+    ) {
+      submitBtnRef.current.focus();
+    }
+  }, [emailError, passwordError, email, password, confirmedPassword]);
 
   return (
     <div className={styles.form}>
@@ -49,7 +67,15 @@ const ReactHookForm = () => {
         <button
           type="submit"
           className={styles['submit-btn']}
-          disabled={!!emailError || !!passwordError || !!confirmedPasswordError}
+          ref={submitBtnRef}
+          disabled={
+            !!emailError ||
+            !!passwordError ||
+            !!confirmedPasswordError ||
+            !email ||
+            !password ||
+            confirmedPassword !== password
+          }
         >
           Зарегистрироваться
         </button>
